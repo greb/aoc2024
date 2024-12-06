@@ -1,5 +1,3 @@
-import itertools
-
 def parse(inp):
     rows = inp.splitlines()
     w, h = len(rows[0]), len(rows)
@@ -18,12 +16,10 @@ def turn_right(dx, dy):
     return -dy,dx
 
 
-def part1(inp):
-    w, h, start, obstacles = inp
-    visited = set()
-
+def run_path(w, h, start, obstacles):
     x,y = start
     dx, dy = 0,-1
+    visited = set()
     while 0 <= x < w and 0 <= y < h:
         nx, ny = x+dx, y+dy
         if (nx,ny) in obstacles:
@@ -31,30 +27,33 @@ def part1(inp):
         else:
             visited.add((x,y))
             x, y = nx, ny
-    return len(visited)
+    return visited
+
+
+def part1(inp):
+    return len(run_path(*inp))
 
 
 def part2(inp):
     w, h, start, obstacles = inp
     cnt = 0
+    visited = run_path(*inp)
 
-    for ox,oy in itertools.product(range(w),range(h)):
-        if (ox,oy) in obstacles or (ox,oy) == start:
+    for n_obstacle in visited:
+        if n_obstacle == start:
             continue
-        visited = set()
-        n_obstacles = obstacles.copy()
-        n_obstacles.add((ox,oy))
 
         x,y = start
         dx, dy = 0,-1
+        visited2 = set()
         while 0 <= x < w and 0 <= y < h:
             nx, ny = x+dx, y+dy
-            if (x,y,dx,dy) in visited:
+            if (x,y,dx,dy) in visited2:
                 cnt += 1
                 break
-            elif (nx,ny) in n_obstacles:
+            elif (nx,ny) in obstacles or (nx,ny) == n_obstacle:
                 dx, dy = turn_right(dx, dy)
             else:
-                visited.add((x,y,dx,dy))
+                visited2.add((x,y,dx,dy))
                 x, y = nx, ny
     return cnt
