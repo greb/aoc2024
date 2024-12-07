@@ -1,53 +1,41 @@
-import collections
-import itertools
 import math
-import operator
-
-Equation = collections.namedtuple('Equation', ['val', 'args'])
 
 def parse(inp):
     equations = []
     for line in inp.splitlines():
         val, args = line.split(': ')
         args = [int(a) for a in args.split(' ')]
-        equations.append(Equation(int(val), args))
+        equations.append((int(val), args))
     return equations
 
 
-def check_equation(base_ops, equation):
-    ops_it = itertools.product(base_ops, repeat=len(equation.args)-1)
-    for ops in ops_it:
-        val = equation.args[0]
-        for op, n_arg in zip(ops, equation.args[1:]):
-            val = op(val, n_arg)
-            if val > equation.val:
-                break
-        if val == equation.val:
+def check_equation(target, args, concat=False):
+    *front, n = args
+    if not front:
+        return n == target
+
+    n_target, rest = divmod(target, n)
+    if rest == 0 and check_equation(n_target, front, concat):
+        return True
+    if concat:
+        e = int(math.log10(n)) + 1
+        n_target, rest = divmod(target, 10**e)
+        if n == rest and check_equation(n_target, front, concat):
             return True
-    return False
+    return check_equation(target-n, front, concat)
 
 
 def part1(equations):
     total = 0
-    base_ops = [operator.add, operator.mul]
-    for equation in equations:
-        if check_equation(base_ops, equation):
-            total += equation.val
+    for val, args in equations:
+        if check_equation(val, args):
+            total += val
     return total
-
-
-def concat(a, b):
-    n = int(math.log(b,10)) + 1
-    return a*10**n + b
 
 
 def part2(equations):
     total = 0
-    base_ops1 = [operator.add, operator.mul]
-    base_ops2 = [operator.add, operator.mul, concat]
-    for equation in equations:
-        if (check_equation(base_ops1, equation) or
-            check_equation(base_ops2, equation)):
-            total += equation.val
+    for val, args in equations:
+        if check_equation(val, args, True):
+            total += val
     return total
-
