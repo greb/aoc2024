@@ -41,7 +41,7 @@ def part2(inp):
             files.append((n, offset))
         offset += n
 
-    disk = [None] * offset
+    checksum = 0
 
     for fid, (n, offset) in reversed(list(enumerate(files))):
         found_free = False
@@ -54,14 +54,13 @@ def part2(inp):
 
         if found_free:
             for i in range(n):
-                disk[free_offset+i] = fid
-            free[idx] = free_n-n, free_offset+n
+                checksum += (free_offset+i) * fid
+            if free_n > n:
+                free[idx] = free_n-n, free_offset+n
+            else:
+                free.pop(idx)
         else:
             for i in range(n):
-                disk[offset+i] = fid
+                checksum += (offset+i) * fid
 
-    checksum = 0
-    for block, fid in enumerate(disk):
-        if fid is not None:
-            checksum += block * fid
     return checksum
