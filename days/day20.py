@@ -21,7 +21,13 @@ def parse(inp):
             dist[nxt] = dist[curr] + 1
             queue.append(nxt)
 
-    return dist
+    cheats = []
+    for (a,da),(b,db) in itertools.combinations(dist.items(), 2):
+        d = manhatten(a,b)
+        if d <= 20 and db-da-d >= 100:
+            cheats.append(d)
+    return cheats
+
 
 DIRS = [(1,0),(0,1),(-1,0),(0,-1)]
 def neighbors(pos):
@@ -33,21 +39,8 @@ def manhatten(a,b):
     return abs(a[0]-b[0]) + abs(a[1]-b[1])
 
 
-def part1(dist):
-    cnt = 0
-    for (a,da),(b,db) in itertools.combinations(dist.items(), 2):
-        d = manhatten(a,b)
-        if d == 2:
-            if db-da-d >= 100:
-                cnt += 1
-    return cnt
+def part1(cheats):
+    return sum(c==2 for c in cheats)
 
-
-def part2(dist):
-    cnt = 0
-    for (a,da),(b,db) in itertools.combinations(dist.items(), 2):
-        d = manhatten(a,b)
-        if d <= 20:
-            if db-da-d >= 100:
-                cnt += 1
-    return cnt
+def part2(cheats):
+    return len(cheats)
